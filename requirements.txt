@@ -7,3 +7,7 @@ passlib
 bcrypt
 flask-talisman
 Flask-Mail
+flask-cors
+flask-sqlalchemy
+flask-login
+flask-migrate
