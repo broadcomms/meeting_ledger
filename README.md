@@ -79,4 +79,12 @@ pip --version
 ```sh
 pip install -r requirements.txt
 ```
-
+## Initialize Flask Application
+```sh
+touch run.py
+mkdir app
+touch app/__init__.py
+mkdir app/main app/main/templates
+touch app/main/templates/index.html touch app/main/templates/base.html 
+touch app/main/routes.py
+```
