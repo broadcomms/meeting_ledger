@@ -1,0 +1,86 @@
+<!-- app/templates/meeting_form.html -->
+
+{% extends "base.html" %}
+{% block title %}{% if meeting %}Edit Meeting{% else %}New Meeting{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h3 class="mb-0">{% if meeting %}Edit Meeting{% else %}New Meeting{% endif %}</h3>
+    </div>
+    <div class="card-body">
+
+      <form method="POST" id="meetingForm">
+          {% if user_orgs %}
+          <div class="mb-3">
+            <label for="org_id" class="form-label">Organization</label>
+            <select class="form-select" id="org_id" name="org_id" required>
+              <option value="">-- Select Organization --</option>
+              {% for org in user_orgs %}
+                <option value="{{ org.org_id }}"
+                  {% if meeting and meeting.org_id == org.org_id %} selected{% endif %}
+                  >{{ org.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        {% else %}
+        <p>You are not a member of any organization. You need to can create one or join one first.</p>
+        {% endif %}
+
+
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input type="text" name="title" id="title" class="form-control" placeholder="Enter meeting title" value="{{ meeting.title if meeting else '' }}" required>
+          <div class="form-text">Provide a concise title for your meeting.</div>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea name="description" id="description" class="form-control" placeholder="Describe the meeting agenda, topics, or objectives" rows="4">{{ meeting.description if meeting else '' }}</textarea>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="date_time" class="form-label">Date &amp; Time</label>
+            <input type="datetime-local" name="date_time" id="date_time" class="form-control"
+                value="{% if meeting %}{{ meeting.date_time.strftime('%Y-%m-%dT%H:%M') }}{% else %}{{ now.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
+                required>
+        <div class="form-text">Select the meeting's start date and time.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="duration" class="form-label">Duration (minutes)</label>
+            <input type="number" name="duration" id="duration" class="form-control" placeholder="e.g., 60" min="1"
+                value="{% if meeting and meeting.duration %}{{ (meeting.duration.total_seconds() / 60) | int }}{% endif %}">
+            <div class="form-text">Enter the expected duration in minutes.</div>
+          </div>
+        </div>
+        <div id="formErrors" class="text-danger mb-3" style="display:none;"></div>
+        <button type="submit" class="btn btn-success">{% if meeting %}Update Meeting{% else %}Create Meeting{% endif %}</button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Basic client-side validation for the meeting form
+  document.getElementById('meetingForm').addEventListener('submit', function(e) {
+    let errors = [];
+    const title = document.getElementById('title').value.trim();
+    const dateTime = document.getElementById('date_time').value;
+    
+    if (!title) {
+      errors.push("Title is required.");
+    }
+    if (!dateTime) {
+      errors.push("Date & Time are required.");
+    }
+    
+    if (errors.length > 0) {
+      e.preventDefault();
+      const errorDiv = document.getElementById('formErrors');
+      errorDiv.style.display = 'block';
+      errorDiv.innerHTML = errors.join('<br>');
+    }
+  });
+  </script>
+{% endblock %}

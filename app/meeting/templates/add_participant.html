@@ -1,0 +1,21 @@
+<!-- templates/add_participant.html -->
+{% extends "base.html" %}
+{% block title %}Add Participant to {{ meeting.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Add Participant to "{{ meeting.title }}"</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Select User:</label>
+      <select name="user_id" class="form-select" required>
+        <option value="">-- Select User --</option>
+        {% for user in users %}
+          <option value="{{ user.user_id }}">{{ user.username }} ({{ user.email }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Participant</button>
+  </form>
+</div>
+{% endblock %}

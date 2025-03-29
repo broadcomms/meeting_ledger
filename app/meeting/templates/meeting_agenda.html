@@ -1,0 +1,205 @@
+<!-- app/meeting/templates/meeting_agenda -->
+<style>
+
+  
+  
+  
+  </style>
+  
+  <div class="card mb-4">
+      <div class="card-header">
+        Agenda & Invitation
+        {% if meeting.organizer_id == current_user.user_id %}
+          <button id="generateAgendaBtn" class="btn btn-primary float-end">Generate Agenda</button>
+        {% endif %}
+      </div>
+      <div class="card-body" id="agendaOutput" >
+        
+      </div>
+    </div>
+    
+  
+    <!-- Agenda Generation JavaScript -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const generateBtn = document.getElementById('generateAgendaBtn');
+        if (generateBtn) {
+          generateBtn.addEventListener('click', function(){
+            const meetingId = window.config.meetingId;
+            fetch(`/agent/generate_agenda/${meetingId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            })
+            .then(response => response.json())
+            .then(data => {
+              if(data.success) {
+            const outputDiv = document.getElementById('agendaOutput');
+            outputDiv.innerHTML = '';
+  
+            // Agenda
+            const agendaData = data.data.agenda || "";
+            if (agendaData.length > 0) {
+              const agendaTitle = document.createElement('h5');
+              agendaTitle.textContent = 'Agenda:';
+              outputDiv.appendChild(agendaTitle);
+              
+              const agendaContainer = document.createElement('div');
+              agendaContainer.innerHTML = marked.parse(agendaData);
+              outputDiv.appendChild(agendaContainer);
+            } else {
+              const noAgenda = document.createElement('p');
+              noAgenda.textContent = 'No agenda text was generated.';
+              outputDiv.appendChild(noAgenda);
+            }
+    
+            // Invitation
+            const invitationData = data.data.invitation || "";
+            const invitationTitle = document.createElement('h5');
+            invitationTitle.textContent = 'Invitation:';
+            outputDiv.appendChild(invitationTitle);
+    
+            const invitationCard = document.createElement('div');
+            invitationCard.className = 'card mb-3';
+            const invitationCardBody = document.createElement('div');
+            invitationCardBody.className = 'card-body';
+            invitationCardBody.innerHTML = marked.parse(invitationData);
+            invitationCard.appendChild(invitationCardBody);
+            outputDiv.appendChild(invitationCard);
+    
+            // Recommendations
+            const recommendationsData = data.data.recommendations || "";
+            const recommendationsTitle = document.createElement('h5');
+            recommendationsTitle.textContent = 'Recommendations:';
+            outputDiv.appendChild(recommendationsTitle);
+    
+            if (recommendationsData.length > 0) {
+              const recContainer = document.createElement('div');
+              recContainer.innerHTML = marked.parse(recommendationsData);
+              outputDiv.appendChild(recContainer);
+            } else {
+              const noRecs = document.createElement('p');
+              noRecs.textContent = 'No recommendations generated.';
+              outputDiv.appendChild(noRecs);
+            }
+              } else {
+                alert("Error generating agenda: " + data.error);
+              }
+            })
+            .catch(error => {
+              console.error("Error:", error);
+              alert("Error generating agenda.");
+            });
+          });
+        }
+      });
+    </script>
+  
+  
+  
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const meetingId = window.config.meetingId;
+      
+      // Call the backend endpoint to get agenda data
+      fetch(`/agent/get_agenda/${meetingId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Check if we got the agenda data
+        if (data.agenda) {
+          const outputDiv = document.getElementById('agendaOutput');
+          outputDiv.innerHTML = '';
+  
+          // Agenda
+          const agendaText = data.agenda.agenda || "";
+          if (agendaText.length > 0) {
+            const agendaTitle = document.createElement('h5');
+            agendaTitle.textContent = 'Agenda:';
+            outputDiv.appendChild(agendaTitle);
+            
+            const agendaContainer = document.createElement('div');
+            agendaContainer.innerHTML = marked.parse(agendaText);
+            outputDiv.appendChild(agendaContainer);
+          } else {
+            const noAgenda = document.createElement('p');
+            noAgenda.textContent = 'No agenda text was generated.';
+            outputDiv.appendChild(noAgenda);
+          }
+  
+          // Invitation
+          const invitationText = data.agenda.invitation || "";
+          const invitationTitle = document.createElement('h5');
+          invitationTitle.textContent = 'Invitation:';
+          outputDiv.appendChild(invitationTitle);
+          
+          const invitationCard = document.createElement('div');
+          invitationCard.className = 'card mb-3';
+          const invitationCardBody = document.createElement('div');
+          invitationCardBody.className = 'card-body';
+          invitationCardBody.innerHTML = marked.parse(invitationText);
+          invitationCard.appendChild(invitationCardBody);
+          outputDiv.appendChild(invitationCard);
+          
+          // Recommendations
+          const recommendationsText = data.agenda.recommendations || "";
+          const recommendationsTitle = document.createElement('h5');
+          recommendationsTitle.textContent = 'Recommendations:';
+          outputDiv.appendChild(recommendationsTitle);
+          
+          if (recommendationsText.length > 0) {
+            const recContainer = document.createElement('div');
+            recContainer.innerHTML = marked.parse(recommendationsText);
+            outputDiv.appendChild(recContainer);
+          } else {
+            const noRecs = document.createElement('p');
+            noRecs.textContent = 'No recommendations generated.';
+            outputDiv.appendChild(noRecs);
+          }
+        } else {
+          console.error("No agenda data received.");
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching agenda:", error);
+      });
+    });
+  </script>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Convert the saved Agenda Markdown
+      var agendaElem = document.getElementById('agendaMarkdown');
+      if (agendaElem) {
+        agendaElem.innerHTML = marked.parse(agendaElem.innerText);
+      }
+      
+      // Convert the saved Invitation Markdown
+      var invitationElem = document.getElementById('invitationMarkdown');
+      if (invitationElem) {
+        invitationElem.innerHTML = marked.parse(invitationElem.innerText);
+      }
+      
+      // Convert the saved Recommendations Markdown
+      var recommendationsElem = document.getElementById('recommendationsMarkdown');
+      if (recommendationsElem) {
+        recommendationsElem.innerHTML = marked.parse(recommendationsElem.innerText);
+      }
+    });
+    
+  </script>

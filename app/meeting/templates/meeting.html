@@ -1,0 +1,193 @@
+<!-- app/template/meeting.html -->
+{% block content %}
+
+
+
+
+<!-- Live Transcript, Saved Transcripts, Summary, and Action Items Sections -->
+<div class="card mb-4">
+  <div class="card-header">Live Transcript</div>
+  <div id="transcriptDiv" class="card-body" style="max-height:300px; overflow-y:auto;">
+    <!-- Transcript dialog blocks will be appended here -->
+    <p id="noTranscriptsMsg">No transcripts available for this meeting. Click "Start Transcription" to start capturing.</p>
+  </div>
+  <div class="mb-3 transcriptCtr ps-3">
+    <button id="startBtn" class="btn btn-primary">Start Transcription</button>
+    <button id="stopBtn" class="btn btn-danger" disabled>Stop Transcription</button>
+    <span id="status" class="ms-3"></span>
+  </div>
+  
+</div>
+
+<div class="card mb-4">
+  <div class="card-header">Saved Transcripts</div>
+  <div id="transcriptListContainer" class="card-body" style="max-height:300px; overflow-y:auto;">
+    <ul id="savedTranscriptsList" class="list-group">
+      {% for transcript in transcripts %}
+      <li id="transcript-li-{{ transcript.transcript_id }}" class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <span>
+            <strong>
+              {{ transcript.speaker.username if transcript.speaker else "Unknown Speaker" }}
+            </strong>
+          </span>
+          <span class="text-muted">
+            {{ transcript.created_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+          </span>
+        </div>
+        <div id="transcript-text-{{ transcript.transcript_id }}" class="mt-2">
+          {% if transcript.processed_transcript %}
+          {{ transcript.processed_transcript }}
+          {% else %}
+          {{ transcript.raw_transcript }}
+          {% endif %}
+        </div>
+        <div class="mt-2">
+          <button onclick="autoCorrectTranscript('{{ transcript.transcript_id }}')" class="btn btn-sm btn-warning">Auto Correct</button>
+          <button onclick="editTranscript('{{ transcript.transcript_id }}')" class="btn btn-sm btn-secondary">Edit</button>
+          <button onclick="resetTranscript('{{ transcript.transcript_id }}')" class="btn btn-sm btn-info">Reset</button>
+          <button onclick="deleteTranscript('{{ transcript.transcript_id }}')" class="btn btn-sm btn-danger">Delete</button>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if transcripts|length == 0 %}
+    <p id="noTranscriptsMsg" class="mt-2">No transcripts available for this meeting. Click "Start Transcription" to start capturing.</p>
+    {% endif %}
+  </div>
+</div>
+
+
+<div class="card mb-4">
+  <div class="card-header">Summary</div>
+  <div class="card-body">
+    <button id="generateSummaryBtn" class="btn btn-primary mb-2">Generate Summary</button>
+    <div id="summaryContainer" class="p-2" style="max-height:200px; overflow-y:auto; border:1px solid #ccc;">
+      {% if summary %}
+      <div id="summaryContent">{{ summary.summary_text | safe }}</div>
+      {% else %}
+      <p id="summaryPlaceholder">Summary will appear here...</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header">Action Items</div>
+  <div class="card-body">
+    <button id="extractTasksBtn" class="btn btn-primary mb-2">Extract Tasks</button>
+    <div id="taskContainer" class="p-2" style="max-height:200px; overflow-y:auto; border:1px solid #ccc;">
+      {% if tasks %}
+      {% for task in tasks %}
+      <div id="task-{{ task.action_item_id }}" class="d-flex align-items-center border-bottom py-2">
+        <input type="checkbox"
+          onchange="updateTaskStatus('{{ task.action_item_id }}', this.checked ? 'complete' : 'pending')"
+          class="form-check-input me-2" {% if task.status=='complete' %}checked{% endif %}>
+        <span id="task-desc-{{ task.action_item_id }}" class="flex-grow-1">{{ task.description }}</span>
+        <button onclick="editTask('{{ task.action_item_id }}')" class="btn btn-sm btn-secondary ms-2">Edit</button>
+      </div>
+      {% endfor %}
+      {% else %}
+      <p>No action items available for this meeting.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+<!-- Summary Generation JavaScript -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const generateSummaryBtn = document.getElementById("generateSummaryBtn");
+    if (generateSummaryBtn) {
+      generateSummaryBtn.addEventListener('click', function(){
+        const meetingId = window.config.meetingId;
+        // Option 1: Include meeting ID in URL
+        fetch(`/agent/generate_summary/${meetingId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          // Option 2: Include meetingID in fetch request.
+          body: JSON.stringify({ meeting_id: meetingId })
+          })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+              const outputDiv = document.getElementById('summaryContainer');
+              outputDiv.innerHTML = '';
+
+              // Summary
+              const summaryData = data.data || "";
+              console.log(summaryData)
+              if (summaryData.length > 0) {
+              
+                const summaryContainer = document.createElement('div');
+                summaryContainer.innerHTML = marked.parse(summaryData);
+                outputDiv.appendChild(summaryContainer);
+              } else {
+                const noSummary = document.createElement('p');
+                noSummary.textContent = 'No Summary text was generated.';
+                outputDiv.appendChild(noSummary);
+              }
+
+
+            } else {
+            alert("Error generating summary: " + data.error);
+            }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("Error generating summary.");
+        });
+      });
+    }
+  });
+</script>
+
+
+<!-- Summary Get Javascript-->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const meetingId = window.config.meetingId;
+    
+    // Call the backend endpoint to get meeting summary data
+    fetch(`/agent/get_summary/${meetingId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      
+      // Check if we got the summary data
+      if(data) {
+        
+        const outputDiv = document.getElementById('summaryContainer');
+        outputDiv.innerHTML = '';
+
+        // Agenda
+        const summaryText = data.summary || "";
+        if (summaryText.length > 0) {
+
+          const summaryContainer = document.createElement('div');
+          summaryContainer.innerHTML = marked.parse(summaryText);
+          outputDiv.appendChild(summaryContainer);
+        } else {
+          const noSummary = document.createElement('p');
+          noSummary.textContent = 'No Summary text was generated.';
+          outputDiv.appendChild(noSummary);
+        }
+
+      } else {
+        console.error("No Summary data received.");
+      }
+    })
+    .catch(error => {
+      console.error("Error fetching summary:", error);
+    });
+  });
+</script>
+

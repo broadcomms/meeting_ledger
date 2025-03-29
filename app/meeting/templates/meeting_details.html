@@ -1,0 +1,70 @@
+<!-- app/templates/meeting_details.html -->
+{% extends "base.html" %}
+{% block title %}Meeting Details: {{ meeting.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>{{ meeting.title }}</h2>
+  <div class="card mb-4">
+    <div class="card-header">
+      Information
+    </div>
+    <div class="card-body">
+      <p><strong>Description:</strong> {{ meeting.description }}</p>
+      <p><strong>Date & Time:</strong> {{ meeting.date_time.strftime('%Y-%m-%d %H:%M') }}</p>
+      {% if meeting.duration %}
+      <p><strong>Duration:</strong> {{ (meeting.duration.total_seconds() / 60) | int }} minutes</p>
+      {% endif %}
+      <p><strong>Organizer:</strong> {{ meeting.organizer.username }}</p>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      Participants
+    </div>
+    <div class="card-body">
+      {% if participants %}
+        <ul class="list-group">
+          {% for p in participants %}
+            <li class="list-group-item">{{ p.user.username }} ({{ p.role }})</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No participants yet.</p>
+      {% endif %}
+      {% if meeting.organizer_id == current_user.user_id %}
+        <a href="{{ url_for('meeting_bp.add_participant', meeting_id=meeting.meeting_id) }}" class="btn btn-primary mt-3">Add Participants</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- New meeting agenda section-->
+  {% include "meeting_agenda.html" %}
+  <!-- Include the transcription UI (existing meeting.html content)-->
+  {% set meeting_id = meeting.meeting_id %}
+  {% set user_id = current_user.user_id %}
+  {% include "video_conference.html" %}
+  {% include "meeting.html" %}
+</div>
+
+
+
+<!-- Pass dynamic config values to JavaScript -->
+<script>
+  window.config = {
+    meetingId: "{{ meeting.meeting_id }}",
+    userId: "{{ current_user.user_id }}",
+    organizerId: "{{ meeting.organizer_id }}",
+    conferenceActive: {{ meeting.conference_active | tojson }},
+    isOrganizer: {{ (meeting.organizer_id == current_user.user_id) | tojson }}
+  };
+</script>
+
+<!-- Load external JavaScript files -->
+<script src="{{ url_for('static', filename='js/transcription.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/meetingChat.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/videoConference.js') }}" defer></script>
+
+
+{% endblock %}

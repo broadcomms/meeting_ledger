@@ -1,0 +1,57 @@
+<!-- Video Conference and Chat-->
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+      Video Conference
+      {% if meeting.organizer_id == current_user.user_id %}
+        <div class="float-end">
+          <button id="startConferenceBtn" class="btn btn-success" {% if meeting.conference_active %}disabled{% endif %}>Start Conference</button>
+          <button id="hangupBtn" class="btn btn-danger" {% if not meeting.conference_active %}disabled{% endif %}>Stop Conference</button>
+        </div>
+      {% else %}
+        {% if meeting.conference_active %}
+        <div class="float-end">
+          <button id="joinConferenceBtn" class="btn btn-primary">Join Meeting</button>
+        </div>
+        {% endif %}
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <!-- Left Column: Video Area -->
+        <div class="col-md-8">
+          <div id="videoContainer" style="position: relative;">
+
+            <!-- Remote Videos -->
+            <div id="remoteVideos" class="d-flex flex-wrap">
+                          <!-- Local Video Tile -->
+            <div class="video-tile" id="tile_{{ user_id }}" style="display:none; position: relative; ">
+              <video id="localVideo" autoplay muted style="height: 180px; border:1px solid #ccc; background: black; margin:5px;"></video>
+              <div class="tile-overlay" style="position: absolute; bottom: 12px; left: 6px; background: rgba(0,0,0,0.5); color: #fff; padding: 2px 5px; font-size: 0.9em;">
+                {{ current_user.username }}
+              </div>
+            </div>
+
+
+            </div>
+          </div>
+
+          
+          <!-- Media Control Buttons -->
+          <div class="mt-2">
+            <!--button id="toggleCameraBtn" class="btn btn-outline-primary">Turn Camera On</button>
+            <button id="toggleMicBtn" class="btn btn-outline-primary">Turn Mic On</button-->
+          </div>
+        </div>
+
+        <!-- Right Column: Chat Panel -->
+        <div class="col-md-4">
+          {% include "live_chat.html" %}
+
+        
+        </div>
+
+      </div> <!-- End Row -->
+    </div>
+  </div>
+  {% endblock %}

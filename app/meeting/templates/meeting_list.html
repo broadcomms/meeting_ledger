@@ -1,0 +1,138 @@
+<!-- app/templates/meeting_list.html -->
+{% extends "base.html" %}
+{% block title %}Meetings{% endblock %}
+
+{% block content %}
+<div class="container mt-5 meeting_list_container">
+  <!-- Flex container for title and button -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Your Meetings</h2>
+    <a href="{{ url_for('meeting_bp.new_meeting') }}" class="btn btn-success">Create New Meeting</a>
+  </div>
+  
+  <!-- Filter and Search Bar -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search by Title or Date">
+    </div>
+    <div class="col-md-3">
+      <select id="statusFilter" class="form-select">
+        <option value="">All Status</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="in-progress">In-Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <input type="date" id="fromDate" class="form-control" placeholder="From">
+    </div>
+    <div class="col-md-2">
+      <input type="date" id="toDate" class="form-control" placeholder="To">
+    </div>
+    <div class="col-md-1">
+      <button id="filterBtn" class="btn btn-primary w-100">Filter</button>
+    </div>
+  </div>
+  
+  <!-- Organized Meetings -->
+  <h4>Organized Meetings</h4>
+  {% if organized %}
+    <ul class="list-group mb-4" id="organizedList">
+        {% for meeting in organized %}
+        {% set end_time = meeting.date_time + (meeting.duration if meeting.duration else timedelta(minutes=0)) %}
+        {% set current_time = datetime.utcnow() %}
+        {% set status = "completed" if end_time < current_time else 
+            ("upcoming" if meeting.conference_active == 0 else "in-progress") %}
+        <li class="list-group-item meeting-item" 
+            data-title="{{ meeting.title | lower }}"
+            data-date="{{ meeting.date_time.strftime('%Y-%m-%d') }}"
+            data-status="{% if meeting.conference_active == 0 %}upcoming{% elif meeting.conference_active == 1 %}in-progress{% elif meeting.status == 2 %}completed{% else %}unknown{% endif %}">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <h5 class="mb-0">{{ meeting.title }}</h5>
+              <small class="text-muted">{{ meeting.date_time.strftime('%Y-%m-%d %H:%M') }}</small>
+            </div>
+            <div>
+              {% if status == "upcoming" %}
+              <span class="badge bg-primary">Upcoming</span>
+              {% elif status == "in-progress" %}
+                  <span class="badge bg-warning text-dark">In-Progress</span>
+              {% elif status == "completed" %}
+                  <span class="badge bg-success">Completed</span>
+              {% else %}
+                  <span class="badge bg-secondary">Unknown</span>
+              {% endif %}
+            </div>
+          </div>
+          <!-- Duration Visualization -->
+          {% if meeting.duration %}
+            {% set minutes = (meeting.duration.total_seconds() / 60)|int %}
+            <div class="mb-2">
+              <small>Duration: {{ minutes }} minutes</small>
+  
+            </div>
+          {% endif %}
+          <div class="d-flex">
+            <a href="{{ url_for('meeting_bp.meeting_details', meeting_id=meeting.meeting_id) }}" class="btn btn-sm btn-primary me-2">View</a>
+            <a href="{{ url_for('meeting_bp.edit_meeting', meeting_id=meeting.meeting_id) }}" class="btn btn-sm btn-secondary me-2">Edit</a>
+            <form action="{{ url_for('meeting_bp.delete_meeting', meeting_id=meeting.meeting_id) }}" method="POST" class="d-inline">
+              <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+            </form>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You have not organized any meetings yet.</p>
+  {% endif %}
+  
+  <!-- Meetings You're Attending -->
+  <h4>Meetings You're Attending</h4>
+  {% if participant_meetings %}
+    <ul class="list-group" id="participantList">
+        {% for meeting in participant_meetings %}
+        {% set end_time = meeting.date_time + (meeting.duration if meeting.duration else timedelta(minutes=0)) %}
+        {% set current_time = datetime.utcnow() %}
+        {% set status = "completed" if end_time < current_time else 
+            ("upcoming" if meeting.conference_active == 0 else "in-progress") %}
+        <li class="list-group-item meeting-item" 
+            data-title="{{ meeting.title | lower }}"
+            data-date="{{ meeting.date_time.strftime('%Y-%m-%d') }}"
+            data-status="{% if meeting.conference_active == 0 %}upcoming{% elif meeting.conference_active == 1 %}in-progress{% elif meeting.status == 2 %}completed{% else %}unknown{% endif %}">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <h5 class="mb-0">{{ meeting.title }}</h5>
+              <small class="text-muted">{{ meeting.date_time.strftime('%Y-%m-%d %H:%M') }}</small>
+            </div>
+            <div>
+              {% if status == "upcoming" %}
+              <span class="badge bg-primary">Upcoming</span>
+              {% elif status == "in-progress" %}
+                  <span class="badge bg-warning text-dark">In-Progress</span>
+              {% elif status == "completed" %}
+                  <span class="badge bg-success">Completed</span>
+              {% else %}
+                  <span class="badge bg-secondary">Unknown</span>
+              {% endif %}
+            </div>
+          </div>
+          <!-- Duration Visualization -->
+          {% if meeting.duration %}
+            {% set minutes = (meeting.duration.total_seconds() / 60)| int %}
+            <div class="mb-2">
+              <small>Duration: {{ minutes }} minutes</small>
+ 
+            </div>
+          {% endif %}
+          <div>
+            <a href="{{ url_for('meeting_bp.meeting_details', meeting_id=meeting.meeting_id) }}" class="btn btn-sm btn-primary">View</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You are not a participant in any meetings yet.</p>
+  {% endif %}
+
+</div>
+{% endblock %}

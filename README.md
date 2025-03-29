@@ -91,16 +91,25 @@ touch app/main/routes.py
 touch app/config.py app/model.py app/extensions.py
 ```
 
-## Integrate authentication module
+## Create authentication module
 ```sh
 mkdir app/auth
 mkdir app/auth/templates
 touch app/auth/routes.py app/auth/templates/login.html app/auth/templates/register.html app/auth/templates/change_password.html
 ```
 
-## Integrate dashboard module
+## Create dashboard module
 ```sh
 mkdir app/dashboard
 mkdir app/dashboard/templates
 touch app/dashboard/routes.py app/dashboard/templates/dashboard.html
+```
+
+## Create meeting module
+```sh
+mkdir app/meeting
+mkdir app/meeting/templates
+touch app/meeting/routes.py app/meeting/templates/meeting.html app/meeting/templates/meeting_agenda.html app/meeting/templates/meeting_details.html
+touch app/meeting/templates/add_participant.html app/meeting/templates/live_chat.html app/meeting/templates/meeting_form.html
+touch app/meeting/templates/meeting_list.html app/meeting/templates/video_conference.html
 ```
