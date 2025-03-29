@@ -1,0 +1,53 @@
+<!-- app/templates/organization_list.html -->
+{% extends "base.html" %}
+{% block title %}Organizations{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>My Organizations</h2>
+  <a href="{{ url_for('organization_bp.create_organization') }}" class="btn btn-primary mb-3">
+    Create Organization
+  </a>
+
+  <!-- Orgs I'm in -->
+  {% if my_orgs %}
+    <ul class="list-group mb-4">
+      {% for org in my_orgs %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ org.name }}</strong>
+            {% if org.is_private %}
+              <span class="badge bg-secondary ms-2">Private</span>
+            {% else %}
+              <span class="badge bg-info text-dark ms-2">Public</span>
+            {% endif %}
+          </div>
+          <a href="{{ url_for('organization_bp.view_organization', org_id=org.org_id) }}"
+             class="btn btn-sm btn-outline-primary">
+            View
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You are not a member of any organizations.</p>
+  {% endif %}
+
+  <!-- Public orgs I'm not in -->
+  <h3>Public Organizations</h3>
+  {% if public_orgs %}
+    <ul class="list-group">
+      {% for org in public_orgs %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <strong>{{ org.name }}</strong>
+          <form action="{{ url_for('organization_bp.request_join', org_id=org.org_id) }}" method="POST">
+            <button class="btn btn-sm btn-success">Request to Join</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No public organizations are available (or you've joined them all).</p>
+  {% endif %}
+</div>
+{% endblock %}
