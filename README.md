@@ -120,3 +120,10 @@ docker build -t meeting_ledger:latest .
 # Test local before live deployment
 docker run --env-file .env -p 5001:5001 meeting_ledger:latest
 ```
+
+# Tag container image and push to BroadComms docker
+```sh
+docker tag meeting_ledger:latest broadcomms/meeting_ledger:latest
+docker login 
+docker push broadcomms/meeting_ledger:latest
+```
