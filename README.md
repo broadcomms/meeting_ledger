@@ -93,7 +93,14 @@ touch app/config.py app/model.py app/extensions.py
 
 ## Integrate authentication module
 ```sh
-mkdir auth
-mkdir auth/templates
-touch auth/routes.py auth/templates/login.py auth/templates/register.py auth/templates/change_password.html
+mkdir app/auth
+mkdir app/auth/templates
+touch app/auth/routes.py app/auth/templates/login.html app/auth/templates/register.html app/auth/templates/change_password.html
+```
+
+## Integrate dashboard module
+```sh
+mkdir app/dashboard
+mkdir app/dashboard/templates
+touch app/dashboard/routes.py app/dashboard/templates/dashboard.html
 ```

@@ -1,0 +1,226 @@
+<!-- app/templates/dashboard.html -->
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid dashboard">
+  <div class="row">
+    <!-- Sidebar: User Profile and Quick Stats -->
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body text-center">
+
+          <img
+            src="{{ url_for('static', filename=user.profile_pic_url) or url_for('static', filename='default-profile.png') }}"
+            alt="Profile Picture"
+            class="img-fluid rounded-circle mb-3"
+            style="width: 100px; height: 100px; object-fit: cover;"
+          />
+          <h5 class="card-title">{{ user.first_name }} {{ user.last_name }}</h5>
+          <p class="text-muted mb-3">{{ user.email }}</p>
+
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('profile_bp.member_profile', user_id=user.user_id) }}" 
+            class="btn btn-sm btn-outline-info">
+           View Profile
+         </a>
+            <a href="{{ url_for('profile_bp.update_photo') }}" class="btn btn-sm btn-outline-primary">Update Photo</a>
+            <a href="{{ url_for('profile_bp.edit_account') }}" class="btn btn-sm btn-outline-secondary">Edit Account</a>
+            <a href="{{ url_for('profile_bp.change_password') }}" class="btn btn-sm btn-outline-warning">Change Password</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats Card -->
+      <div class="card shadow-sm">
+        <div class="card-header">
+          Quick Stats
+        </div>
+        <div class="card-body">
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Organizations:</span>
+            <strong>{{ my_orgs|length }}</strong>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Members:</span>
+            <strong>{{ members|length }}</strong>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Meetings:</span>
+            <strong>{{ meetings|length }}</strong>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Tasks:</span>
+            <strong>{{ tasks|length }}</strong>
+          </div>
+
+
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Area -->
+    <div class="col-md-9">
+
+      {% if pending_invitations|length > 0 %}
+  <div class="alert alert-info">
+    <strong>You have pending organization invitations:</strong>
+    <ul>
+      {% for inv in pending_invitations %}
+        <li>
+          Organization: {{ inv.organization.name }}
+          <a href="{{ url_for('organization_bp.respond_invitation', invitation_id=inv.invitation_id) }}" class="btn btn-sm btn-success">Accept</a>
+          <a href="{{ url_for('organization_bp.respond_invitation', invitation_id=inv.invitation_id) }}" class="btn btn-sm btn-danger">Decline</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+
+
+      <!-- If user has no orgs, show hero CTA. Otherwise, show panels. -->
+      {% if my_orgs|length == 0 %}
+        <div class="card shadow-sm mb-4 border-0">
+          <div class="card-body text-center p-5">
+            <h2 class="mb-3">Welcome to Meeting Ledger, {{ user.first_name or user.email }}!</h2>
+            <p class="text-muted mb-4">
+              It looks like you haven't joined or created any organizations yet.
+              Organizations let you collaborate with team members, schedule meetings, and manage tasks.
+              Get started by creating your first organization or joining an existing one!
+            </p>
+            <a href="{{ url_for('organization_bp.create_organization') }}" class="btn btn-lg btn-primary me-2">
+              <i class="bi bi-building-add"></i> Create Organization
+            </a>
+            <a href="{{ url_for('organization_bp.list_organizations') }}" class="btn btn-lg btn-outline-secondary">
+              <i class="bi bi-people-fill"></i> Browse Organizations
+            </a>
+          </div>
+        </div>
+      {% else %}
+
+        <!-- My Organizations Panel -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold">My Organizations</span>
+            <!-- NEW BUTTON HERE -->
+            <a href="{{ url_for('organization_bp.create_organization') }}" class="btn btn-primary btn-sm">
+              <i class="bi bi-plus-circle"></i> New Organization
+            </a>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              {% for org in my_orgs %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{{ org.name }}</strong>
+                    {% if org.is_private %}
+                      <span class="badge bg-secondary ms-2">Private</span>
+                    {% else %}
+                      <span class="badge bg-info text-dark ms-2">Public</span>
+                    {% endif %}
+                  </div>
+                  <a href="{{ url_for('organization_bp.view_organization', org_id=org.org_id) }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-eye"></i> View
+                  </a>
+                </li>
+              {% else %}
+                <li class="list-group-item">No organizations found.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Meetings Panel -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold">My Meetings</span>
+            <a href="{{ url_for('meeting_bp.new_meeting') }}" class="btn btn-primary btn-sm">
+              <i class="bi bi-calendar-plus"></i> Create Meeting
+            </a>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              {% for meeting in meetings %}
+                <li class="list-group-item d-flex justify-content-between align-items-center meeting-item" data-meeting-id="{{ meeting.meeting_id }}">
+                  <div>
+                    <h6 class="mb-1">{{ meeting.title }}</h6>
+                    <small class="text-muted">{{ meeting.date_time.strftime('%Y-%m-%d %H:%M') }}</small>
+                  </div>
+                  <a href="{{ url_for('meeting_bp.meeting_details', meeting_id=meeting.meeting_id) }}" class="btn btn-outline-secondary btn-sm">Details</a>
+                </li>
+              {% else %}
+                <li class="list-group-item">No meetings scheduled.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tasks Panel -->
+        <div class="card mb-4 shadow-sm">
+          <!-- UPDATED HEADER with "Add Task" button -->
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Action Items</span>
+            <a href="{{ url_for('task_bp.new_task') }}" class="btn btn-primary btn-sm">
+              <i class="bi bi-plus-circle"></i> Add New Task
+            </a>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              {% for task in tasks %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    {{ task.description }}
+                    <br>
+                    <small class="text-muted">Status: {{ task.status }}</small>
+                  </div>
+                  <button class="btn btn-outline-secondary btn-sm" onclick="editTask('{{ task.action_item_id }}')">Edit</button>
+                </li>
+              {% else %}
+                <li class="list-group-item">No action items available.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Members Panel -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header fw-bold">
+            Members
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              {% for member in members %}
+                <li class="list-group-item d-flex align-items-center">
+                  <img
+                    src="{{ url_for('static', filename=member.profile_pic_url) }}"
+                    alt="{{ member.first_name }} {{ member.last_name }}"
+                    class="rounded-circle me-3"
+                    style="width: 40px; height: 40px; object-fit: cover;"
+                  />
+                  <span>{{ member.first_name }} {{ member.last_name }}</span>
+                  <a href="{{ url_for('profile_bp.member_profile', user_id=member.user_id) }}" class="btn btn-outline-secondary btn-sm ms-auto">Profile</a>
+                </li>
+              {% else %}
+                <li class="list-group-item">No members found.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+function editTask(taskId) {
+  // Example: open a modal or redirect to a task editing page
+  alert("Editing task " + taskId);
+}
+</script>
+{% endblock %}
