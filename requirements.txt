@@ -16,3 +16,4 @@ ibm-watson
 langchain_ibm
 langgraph
 langchain
+langgraph-checkpoint-sqlite
