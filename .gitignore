@@ -173,3 +173,27 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+#macOS stuffs
+.DS_Store 
+.AppleDouble
+.LSOverride
+Icon
+# Thumbnails
+._*
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+# Directories potentially created on remote AFP share
+.DocumentRevisions-V100
+.fseventsd
+# Windows image file caches
+._.DS_Store
+# Windows thumbnail cache files
+Thumbs.db
+# Windows desktop.ini
+desktop.ini
+# Windows shortcuts
+*.lnk
+# Windows shortcuts
+*.url
