@@ -13,3 +13,4 @@ flask-login
 flask-migrate
 PyJWT
 ibm-watson
+langchain_ibm
