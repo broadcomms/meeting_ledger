@@ -81,7 +81,6 @@ pip install -r requirements.txt
 ```
 ## Initialize Flask Application
 ```sh
-
 touch run.py
 mkdir app
 touch app/__init__.py
@@ -90,4 +89,11 @@ touch app/main/templates/index.html touch app/main/templates/base.html
 touch app/main/routes.py
 
 touch app/config.py app/model.py app/extensions.py
+```
+
+## Integrate authentication module
+```sh
+mkdir auth
+mkdir auth/templates
+touch auth/routes.py auth/templates/login.py auth/templates/register.py auth/templates/change_password.html
 ```
