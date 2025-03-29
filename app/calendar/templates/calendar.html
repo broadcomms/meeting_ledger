@@ -1,0 +1,86 @@
+<!-- app/templates/calendar.html -->
+
+{% extends "base.html" %}
+{% block title %}Calendar{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Calendar</h2>
+    <button class="btn btn-primary mb-3" onclick="showEventForm()">Add New Event</button>
+    <div id="calendar"></div>
+</div>
+
+<!-- Event Modal -->
+<div id="eventModal" style="display:none;">
+    <form id="eventForm">
+        <label>Title:</label>
+        <input type="text" id="eventTitle" required>
+        
+        <label>Type:</label>
+        <select id="eventType">
+            <option value="custom">Custom Event</option>
+            <option value="meeting">Meeting</option>
+            <option value="task">Task</option>
+        </select>
+        
+        <label>Start Date:</label>
+        <input type="datetime-local" id="startDate" required>
+
+        <label>End Date:</label>
+        <input type="datetime-local" id="endDate">
+        
+        <button type="submit">Save Event</button>
+    </form>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var calendarEl = document.getElementById("calendar");
+    
+        if (!window.FullCalendar) {
+            console.error("FullCalendar is not loaded! Check if the script is included in base.html.");
+            return;
+        }
+    
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: "dayGridMonth",
+            events: "/calendar/events",
+            selectable: true,
+            select: function(info) {
+                document.getElementById("startDate").value = info.startStr;
+                document.getElementById("eventModal").style.display = "block";
+            },
+            eventClick: function(info) {
+                if (info.event.url) {
+                    window.location.href = info.event.url;
+                }
+            }
+        });
+    
+        calendar.render();
+    });
+    </script>
+    
+
+<script>
+
+
+document.getElementById("eventForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    var data = {
+        title: document.getElementById("eventTitle").value,
+        event_type: document.getElementById("eventType").value,
+        start_date: document.getElementById("startDate").value,
+        end_date: document.getElementById("endDate").value
+    };
+    fetch("/calendar/events/new", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    }).then(() => location.reload());
+});
+</script>
+
+{% endblock %}
+ 
