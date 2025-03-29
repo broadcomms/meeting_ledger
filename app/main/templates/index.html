@@ -1,0 +1,74 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+{% block title %}Meeting Ledger - AI-Powered Smart Meetings{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <!-- Hero Section -->
+  <section class="text-center">
+    <div class="row align-items-center">
+      <div class="col-lg-6 text-lg-start">
+        <h1 class="display-4 fw-bold text-dark">Smarter Meeting Management</h1>
+        <p class="lead text-muted">
+          Smart transcription, action items, and seamless collaboration, for hybrid teams that need to stay connected and productive.
+        </p>
+        <p class="text-muted">📅 Automate meeting workflows.</p>
+        <p class="text-muted">📊 Boost production efficiency. </p>
+        <p class="text-muted">🎯 Get more done in less time.</p>
+   
+        <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3 mt-4">
+          <a href="{{ url_for('auth_bp.register') }}" class="btn btn-primary btn-lg px-4">
+            Get Started for Free
+          </a>
+          <a href="{{ url_for('auth_bp.login') }}" class="btn btn-outline-dark btn-lg px-4">
+            Login
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block">
+        <img src="{{ url_for('static', filename='images/meeting_software_illustration.jpg') }}" alt="Meeting Software Illustration" class="img-fluid">
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="text-center my-5">
+    <h2 class="fw-bold">The all-in-one meeting solution for teams that work</h2>
+    <p class="text-muted mb-4">Are you tired of scattered meeting notes, missed action items and endless follow ups? Meeting Ledger is a smart meeting management tool designed to streamline your meeting management and review process.</p>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card shadow-sm p-4 border-0">
+          <h3 class="fw-bold text-primary">Live Transcription</h3>
+          <p class="text-muted">Capture and transcribe every conversation in real-time with high accuracy.</p>
+          <img src="{{ url_for('static', filename='images/live-transcription.webp') }}" alt="Transcription" class="img-fluid" style="max-height: 150px;">
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm p-4 border-0">
+          <h3 class="fw-bold text-success">Smart Action Items</h3>
+          <p class="text-muted">Automatically extract tasks and decisions from meetings. No more forgotten follow-ups.</p>
+          <img src="{{ url_for('static', filename='images/smart_action_items.jpg') }}" alt="Action Items" class="img-fluid" style="max-height: 150px;">
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm p-4 border-0">
+          <h3 class="fw-bold text-danger">Hybrid Collaboration</h3>
+          <p class="text-muted">Seamlessly connect remote & in-person participants with live video, audio, and chat.</p>
+          <img src="{{ url_for('static', filename='images/hybride_collaboration_2.jpg') }}" alt="Collaboration" class="img-fluid" style="max-height: 150px;">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+<!-- Call to Action -->
+<section class="text-center my-5">
+  <h2 class="fw-bold">Start Managing Meetings Smarter</h2>
+  <p class="text-muted">
+    Be among the first to experience smart meeting management with AI-powered tools.
+   Sign up to get started today and transform the way your team collaborates!
+  </p>
+  <a href="{{ url_for('auth_bp.register') }}" class="btn btn-primary btn-lg px-5 mt-3">Try It for Free</a>
+</section>
+
+{% endblock %}
