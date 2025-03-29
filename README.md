@@ -113,3 +113,10 @@ touch app/meeting/routes.py app/meeting/templates/meeting.html app/meeting/templ
 touch app/meeting/templates/add_participant.html app/meeting/templates/live_chat.html app/meeting/templates/meeting_form.html
 touch app/meeting/templates/meeting_list.html app/meeting/templates/video_conference.html
 ```
+
+# Containerize the application
+```sh
+docker build -t meeting_ledger:latest .
+# Test local before live deployment
+docker run --env-file .env -p 5001:5001 meeting_ledger:latest
+```
