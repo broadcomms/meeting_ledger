@@ -12,3 +12,4 @@ flask-sqlalchemy
 flask-login
 flask-migrate
 PyJWT
+ibm-watson
