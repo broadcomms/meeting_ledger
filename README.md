@@ -64,9 +64,12 @@ run.py
 
 ## Setup Virtual Environment
 ```sh
+mkdir meeting_ledger
+cd meeting_ledger
 python --version
 python -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip --version
 ```
+
