@@ -73,3 +73,10 @@ pip install --upgrade pip
 pip --version
 ```
 
+## Install dependent libraries
+
+## Install Dependent Libraries
+```sh
+pip install -r requirements.txt
+```
+

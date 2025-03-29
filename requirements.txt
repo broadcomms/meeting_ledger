@@ -1,0 +1,9 @@
+Flask
+Flask-SocketIO
+eventlet
+python-dotenv
+SQLAlchemy
+passlib
+bcrypt
+flask-talisman
+Flask-Mail
