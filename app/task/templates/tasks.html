@@ -1,0 +1,62 @@
+<!-- app/templates/tasks.html -->
+
+{% extends "base.html" %}
+{% block title %}Tasks{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Task Management</h2>
+    <a href="{{ url_for('task_bp.new_task') }}" class="btn btn-success mb-3">Create New Task</a>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Assigned To</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.description }}</td>
+                <td>{{ task.assignee.username if task.assignee else "Unassigned" }}</td>
+                <td>
+                    <select class="form-select" onchange="updateTaskStatus({{ task.action_item_id }}, this.value)">
+                        <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="in_progress" {% if task.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
+                    </select>
+                </td>
+                <td>{{ task.priority }}</td>
+                <td>{{ task.due_date }}</td>
+                <td>
+                    <a href="{{ url_for('task_bp.edit_task', task_id=task.action_item_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form action="{{ url_for('task_bp.delete_task', task_id=task.action_item_id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function updateTaskStatus(taskId, status) {
+    fetch(`/tasks/${taskId}/update_status`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({status: status})
+    }).then(response => response.json()).then(data => {
+        console.log("Task updated:", data);
+    }).catch(error => {
+        console.error("Error updating task:", error);
+    });
+}
+</script>
+
+{% endblock %}
