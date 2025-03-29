@@ -1,0 +1,108 @@
+<!-- app/templates/documents.html -->
+{% extends "base.html" %}
+{% block title %}Documents{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>All Documents</h2>
+
+  <!-- Filters Form -->
+  <form method="get" class="row g-3 mb-4">
+    <!-- Filter by type (Chat File / Task File) -->
+    <div class="col-auto">
+      <label for="source" class="form-label">Type</label>
+      <select name="source" id="source" class="form-select">
+        <option value="" {% if not filter_source %}selected{% endif %}>All</option>
+        <option value="Chat File" {% if filter_source == 'Chat File' %}selected{% endif %}>Chat File</option>
+        <option value="Task File" {% if filter_source == 'Task File' %}selected{% endif %}>Task File</option>
+      </select>
+    </div>
+
+    <!-- Filter by Uploader -->
+    <div class="col-auto">
+      <label for="uploader" class="form-label">Uploader</label>
+      <input 
+        type="text" 
+        id="uploader" 
+        name="uploader" 
+        class="form-control" 
+        placeholder="Type a username"
+        value="{{ filter_uploader|default('') }}"
+      />
+    </div>
+
+    <!-- Filter by Meeting ID -->
+    <div class="col-auto">
+      <label for="meeting_id" class="form-label">Meeting ID</label>
+      <input 
+        type="text" 
+        id="meeting_id" 
+        name="meeting_id" 
+        class="form-control" 
+        placeholder="Meeting ID"
+        value="{{ filter_meeting|default('') }}"
+      />
+    </div>
+
+    <!-- Filter by Date Range -->
+    <div class="col-auto">
+      <label for="start_date" class="form-label">Start Date</label>
+      <input 
+        type="date" 
+        id="start_date" 
+        name="start_date" 
+        class="form-control"
+        value="{{ filter_start|default('') }}"
+      />
+    </div>
+    <div class="col-auto">
+      <label for="end_date" class="form-label">End Date</label>
+      <input 
+        type="date" 
+        id="end_date" 
+        name="end_date" 
+        class="form-control"
+        value="{{ filter_end|default('') }}"
+      />
+    </div>
+
+    <div class="col-auto" style="margin-top:2rem;">
+      <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+  </form>
+
+  <!-- Example table listing all docs -->
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Filename</th>
+        <th>Uploader</th>
+        <th>Meeting ID</th>
+        <th>Uploaded At</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for doc in all_docs %}
+      <tr>
+        <td>{{ doc.source }}</td>
+        <td>{{ doc.filename }}</td>
+        <td>{{ doc.uploader }}</td>
+        <td>{{ doc.meeting_id if doc.meeting_id else '--' }}</td>
+        <td>
+          {% if doc.uploaded_at %}
+            {{ doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S") }}
+          {% else %}
+            --
+          {% endif %}
+        </td>
+        <td>
+          <a href="{{ doc.file_url }}" target="_blank">Open File</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
